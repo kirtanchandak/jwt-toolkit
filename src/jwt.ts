@@ -62,5 +62,16 @@ export const decode_jwt = (secret: string, jwt: string): { id: string, payload: 
       payload,
       expires_at,
     };
-  };
+};
 
+export const validate_jwt = (secret: string, jwt: string): boolean => {
+    try {
+      const { expires_at } = decode_jwt(secret, jwt);
+      if (expires_at && expires_at < new Date()) {
+        return false;
+      }
+      return true;
+    } catch {
+      return false;
+    }
+  };
