@@ -11,6 +11,10 @@ const base64UrlEncode = (str: string): string => {
   return Buffer.from(str).toString('base64url');
 };
 
+const base64UrlDecode = (str: string): string => {
+    return Buffer.from(str, 'base64url').toString();
+  };
+
 const createJwtSignature = (header: string, payload: string, secret: string): string => {
   return createHmac('SHA256', secret).update(`${header}.${payload}`).digest('base64url');
 };
@@ -39,4 +43,24 @@ export const encode_jwt = (secret: string, id: string | number, payload: object,
   return `${encodedHeader}.${encodedPayload}.${signature}`;
 };
 
+export const decode_jwt = (secret: string, jwt: string): { id: string, payload: object, expires_at: Date | null } => {
+    const [encodedHeader, encodedPayload, signature] = jwt.split('.');
+    if (!encodedHeader || !encodedPayload || !signature) {
+      throw new Error('Invalid JWT');
+    }
+  
+    const validSignature = createJwtSignature(encodedHeader, encodedPayload, secret);
+    if (signature !== validSignature) {
+      throw new Error('Invalid JWT signature');
+    }
+  
+    const payload = JSON.parse(base64UrlDecode(encodedPayload)) as JwtPayload;
+    const expires_at = payload.exp ? new Date(payload.exp * 1000) : null;
+  
+    return {
+      id: payload.id.toString(),
+      payload,
+      expires_at,
+    };
+  };
 
