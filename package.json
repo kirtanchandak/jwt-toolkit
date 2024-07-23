@@ -1,7 +1,7 @@
 {
   "name": "jwt-toolkit-fast",
   "version": "1.0.1",
-  "description": "One-stop solution for your jwts!",
+  "description": "One-stop solution for your jwts!!",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
