@@ -1,8 +1,14 @@
-const subtleCrypto: SubtleCrypto = (typeof window !== 'undefined' && window.crypto)
-  ? window.crypto.subtle
-  : (typeof global !== 'undefined' && (global as any).crypto)
-  ? (global as any).crypto.webcrypto.subtle
-  : (() => { throw new Error('No Web Crypto API available.'); })();
+let subtleCrypto: SubtleCrypto;
+
+if (typeof window !== 'undefined' && window.crypto) {
+  // Browser environment
+  subtleCrypto = window.crypto.subtle;
+} else if (typeof global !== 'undefined' && (global as any).crypto) {
+  // Node.js environment
+  subtleCrypto = (global as any).crypto.webcrypto.subtle;
+} else {
+  throw new Error('No Web Crypto API available.');
+}
 
 const base64UrlEncode = (buffer: ArrayBuffer): string => {
   const uint8Array = new Uint8Array(buffer);
