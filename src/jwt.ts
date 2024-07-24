@@ -1,5 +1,35 @@
-import * as crypto from 'node:crypto'
-const webcrypto = <Crypto>crypto.webcrypto
+const subtleCrypto: SubtleCrypto = (typeof window !== 'undefined' && window.crypto)
+  ? window.crypto.subtle
+  : (typeof global !== 'undefined' && (global as any).crypto)
+  ? (global as any).crypto.webcrypto.subtle
+  : (() => { throw new Error('No Web Crypto API available.'); })();
+
+const base64UrlEncode = (buffer: ArrayBuffer): string => {
+  const uint8Array = new Uint8Array(buffer);
+  return btoa(String.fromCharCode(...uint8Array))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
+};
+
+const base64UrlDecode = (base64: string): ArrayBuffer => {
+  const base64WithPadding = base64 + '='.repeat((4 - base64.length % 4) % 4);
+  const binaryString = atob(base64WithPadding.replace(/-/g, '+').replace(/_/g, '/'));
+  const len = binaryString.length;
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+  return bytes.buffer;
+};
+
+const hmacSign = async (key: CryptoKey, data: ArrayBuffer): Promise<ArrayBuffer> => {
+  return await subtleCrypto.sign('HMAC', key, data);
+};
+
+const hmacVerify = async (key: CryptoKey, data: ArrayBuffer, signature: ArrayBuffer): Promise<boolean> => {
+  return await subtleCrypto.verify('HMAC', key, signature, data);
+};
 
 interface JwtPayload {
   [key: string]: any;
@@ -13,57 +43,20 @@ interface JwtHeader {
   typ: string;
 }
 
-const base64UrlEncode = (buffer: Uint8Array): string => {
-  return btoa(String.fromCharCode(...buffer))
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=+$/, '');
-};
-
-const base64UrlDecode = (base64: string): Uint8Array => {
-  const binaryString = atob(base64.replace(/-/g, '+').replace(/_/g, '/'));
-  const len = binaryString.length;
-  const bytes = new Uint8Array(len);
-  for (let i = 0; i < len; i++) {
-    bytes[i] = binaryString.charCodeAt(i);
-  }
-  return bytes;
-};
-
-const hmacSign = async (key: CryptoKey, data: Uint8Array): Promise<ArrayBuffer> => {
-  return await webcrypto.subtle.sign('HMAC', key, data);
-};
-
-const hmacVerify = async (key: CryptoKey, data: Uint8Array, signature: Uint8Array): Promise<boolean> => {
-  return await webcrypto.subtle.verify('HMAC', key, signature, data);
-};
-
 export const encode_jwt = async (
   secret: string,
   id: string | number,
   payload: object,
   ttl?: number
 ): Promise<string> => {
-  const header: JwtHeader = {
-    alg: 'HS256',
-    typ: 'JWT',
-  };
-
+  const header = { alg: 'HS256', typ: 'JWT' };
   const timestamp = Math.floor(Date.now() / 1000);
-  const jwtPayload: JwtPayload = {
-    ...payload,
-    id,
-    iat: timestamp,
-  };
-
-  if (ttl) {
-    jwtPayload.exp = timestamp + ttl;
-  }
+  const jwtPayload = { ...payload, id, iat: timestamp, exp: ttl ? timestamp + ttl : undefined };
 
   const encodedHeader = base64UrlEncode(new TextEncoder().encode(JSON.stringify(header)));
   const encodedPayload = base64UrlEncode(new TextEncoder().encode(JSON.stringify(jwtPayload)));
 
-  const key = await webcrypto.subtle.importKey(
+  const key = await subtleCrypto.importKey(
     'raw',
     new TextEncoder().encode(secret),
     { name: 'HMAC', hash: { name: 'SHA-256' } },
@@ -72,7 +65,7 @@ export const encode_jwt = async (
   );
 
   const signature = await hmacSign(key, new TextEncoder().encode(`${encodedHeader}.${encodedPayload}`));
-  const encodedSignature = base64UrlEncode(new Uint8Array(signature));
+  const encodedSignature = base64UrlEncode(signature);
 
   return `${encodedHeader}.${encodedPayload}.${encodedSignature}`;
 };
@@ -86,8 +79,8 @@ export const decode_jwt = async (secret: string, jwt: string): Promise<{ id: str
 
   const header = JSON.parse(new TextDecoder().decode(base64UrlDecode(encodedHeader))) as JwtHeader;
   const payload = JSON.parse(new TextDecoder().decode(base64UrlDecode(encodedPayload))) as JwtPayload;
-  
-  const key = await webcrypto.subtle.importKey(
+
+  const key = await subtleCrypto.importKey(
     'raw',
     new TextEncoder().encode(secret),
     { name: 'HMAC', hash: { name: 'SHA-256' } },
