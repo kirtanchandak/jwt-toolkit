@@ -1,4 +1,5 @@
-import { webcrypto } from "crypto";
+import * as crypto from 'node:crypto'
+const webcrypto = <Crypto>crypto.webcrypto
 
 interface JwtPayload {
   [key: string]: any;
