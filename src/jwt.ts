@@ -2,7 +2,7 @@ let subtleCrypto: SubtleCrypto;
 
 if (typeof window !== 'undefined' && window.crypto) {
   // Browser environment
-  subtleCrypto = crypto.subtle;
+  subtleCrypto = window.crypto.subtle;
 } else if (typeof global !== 'undefined' && (global as any).crypto) {
   // Node.js environment
   subtleCrypto = (global as any).crypto.subtle;
