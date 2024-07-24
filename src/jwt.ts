@@ -18,7 +18,7 @@ const base64UrlEncode = (buffer: ArrayBuffer): string => {
     .replace(/=+$/, '');
 };
 
-const base64UrlDecode = (base64: string): ArrayBuffer => {
+const base64UrlDecode = (base64: string): Uint8Array => {
   const base64WithPadding = base64 + '='.repeat((4 - base64.length % 4) % 4);
   const binaryString = atob(base64WithPadding.replace(/-/g, '+').replace(/_/g, '/'));
   const len = binaryString.length;
@@ -26,14 +26,14 @@ const base64UrlDecode = (base64: string): ArrayBuffer => {
   for (let i = 0; i < len; i++) {
     bytes[i] = binaryString.charCodeAt(i);
   }
-  return bytes.buffer;
+  return bytes;
 };
 
 const hmacSign = async (key: CryptoKey, data: ArrayBuffer): Promise<ArrayBuffer> => {
   return await subtleCrypto.sign('HMAC', key, data);
 };
 
-const hmacVerify = async (key: CryptoKey, data: ArrayBuffer, signature: ArrayBuffer): Promise<boolean> => {
+const hmacVerify = async (key: CryptoKey, data: ArrayBuffer, signature: Uint8Array): Promise<boolean> => {
   return await subtleCrypto.verify('HMAC', key, signature, data);
 };
 
