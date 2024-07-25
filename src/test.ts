@@ -1,4 +1,4 @@
-import { decode_jwt, encode_jwt } from "./jwt";
+import { decode_jwt, encode_jwt, validate_jwt } from "./jwt";
 
 const generateToken = async (): Promise<void> => {
   const secret = 'secret';
@@ -12,7 +12,7 @@ const generateToken = async (): Promise<void> => {
   }
 };
 
-const validateToken = async (): Promise<void> => {
+const decodeToken = async (): Promise<void> => {
   const secret = 'secret';
   try {
     const signature = await decode_jwt(secret, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEyMywibmFtZSI6IkFuaXNoIiwiaWQiOjEsImlhdCI6MTcyMTgyOTc0MCwiZXhwIjoxNzIxODMzMzQwfQ.2MjnRblca8QfGkQteMbBgjERAhpcLWm1is-zVf3bBgU")
@@ -22,5 +22,16 @@ const validateToken = async (): Promise<void> => {
   }
 }
 
+const validateToken = async (): Promise<void> => {
+  const secret = 'secret';
+  try {
+    const signature = await validate_jwt(secret, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEyMywibmFtZSI6IkFuaXNoIiwiaWQiOjEsImlhdCI6MTcyMTg0MDUyOCwiZXhwIjoxNzIxODQ0MTI4fQ.XaYOZetmKElvDOjcl533YcoSzECBK2Y9Pxp0b")
+    console.log(signature);
+  } catch (err) {
+    console.log(err);
+  }
+}
+
 generateToken();
+decodeToken();
 validateToken();

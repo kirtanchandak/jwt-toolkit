@@ -1,3 +1,5 @@
+import { JwtHeader, JwtPayload } from "./types";
+
 let subtleCrypto: SubtleCrypto;
 
 if (typeof window !== 'undefined' && window.crypto) {
@@ -36,18 +38,6 @@ const hmacSign = async (key: CryptoKey, data: ArrayBuffer): Promise<ArrayBuffer>
 const hmacVerify = async (key: CryptoKey, data: ArrayBuffer, signature: Uint8Array): Promise<boolean> => {
   return await subtleCrypto.verify('HMAC', key, signature, data);
 };
-
-interface JwtPayload {
-  [key: string]: any;
-  id: string | number;
-  iat: number;
-  exp?: number;
-}
-
-interface JwtHeader {
-  alg: string;
-  typ: string;
-}
 
 export const encode_jwt = async (
   secret: string,
