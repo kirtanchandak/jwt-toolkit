@@ -1,5 +1,7 @@
 # jwt-toolkit-fast
 `jwt-toolkit-fast` ✨ is a JavaScript module for JSON Object Signing and Encryption, providing support for JSON Web Tokens (JWT). The module is designed to work across various Web-interoperable runtimes including Node.js and browsers.
+# Demo
+[jwt-toolkit-fast-demo🔗](https://jwt-toolkit-fast-demo.vercel.app/)
 # Documentation
 The `jwt-toolkit-fast` module supports JSON Web Tokens (JWT) and provides functionality for signing and verifying tokens. 
 ### Encode/Sign JWT
