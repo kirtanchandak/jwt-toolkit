@@ -15,8 +15,8 @@ const base64UrlDecode = (base64: string): Uint8Array => {
 };
 
 const hmacVerify = async (key: CryptoKey, data: ArrayBuffer, signature: Uint8Array): Promise<boolean> => {
-    return await subtleCrypto.verify('HMAC', key, signature, data);
-  };
+  return await subtleCrypto.verify('HMAC', key, signature, data);
+};
 
 export const decode_jwt = async (
   secret: string,
@@ -28,12 +28,19 @@ export const decode_jwt = async (
     throw new Error("Invalid JWT format");
   }
 
-  const header = JSON.parse(
-    new TextDecoder().decode(base64UrlDecode(encodedHeader))
-  ) as JwtHeader;
-  const payload = JSON.parse(
-    new TextDecoder().decode(base64UrlDecode(encodedPayload))
-  ) as JwtPayload;
+  let header: JwtHeader;
+  let payload: JwtPayload;
+  try {
+    header = JSON.parse(new TextDecoder().decode(base64UrlDecode(encodedHeader))) as JwtHeader;
+  } catch (error) {
+    throw new Error("Invalid JWT header format");
+  }
+
+  try {
+    payload = JSON.parse(new TextDecoder().decode(base64UrlDecode(encodedPayload))) as JwtPayload;
+  } catch (error) {
+    throw new Error("Invalid JWT payload format");
+  }
 
   const key = await subtleCrypto.importKey(
     "raw",
