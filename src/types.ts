@@ -3,6 +3,8 @@ export interface JwtPayload {
     id: string | number;
     iat: number;
     exp?: number;
+    aud?: string,
+    iss?: string,
   }
   
 export interface JwtHeader {

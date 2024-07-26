@@ -5,9 +5,10 @@ import { validate_jwt } from "./validateJwt";
 const generateToken = async (): Promise<void> => {
   const secret = 'secret';
   const payload = { userId: 123, name: 'Anish' };
+  const options = {ttl: 3600, aud: "my-aud", iss: "sallubhai"}
 
   try {
-    const token = await encode_jwt(secret, 1, payload, 3600);
+    const token = await encode_jwt(secret, 1, payload, options);
     console.log('Encoded Token:', token);
   } catch (error) {
     console.error('Error encoding JWT:', error);
@@ -17,7 +18,7 @@ const generateToken = async (): Promise<void> => {
 const decodeToken = async (): Promise<void> => {
   const secret = 'secret';
   try {
-    const signature = await decode_jwt(secret, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEyMywibmFtZSI6IkFuaXNoIiwiaWQiOjEsImlhdCI6MTcyMTgyOTc0MCwiZXhwIjoxNzIxODMzMzQwfQ.2MjnRblca8QfGkQteMbBgjERAhpcLWm1is-zVf3bBgU")
+    const signature = await decode_jwt(secret, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEyMywibmFtZSI6IkFuaXNoIiwiaWQiOjEsImlhdCI6MTcyMTk3Nzc4MiwiZXhwIjoxNzIxOTgxMzgyLCJhdWQiOiJteS1hdWQiLCJpc3MiOiJzYWxsdWJoYWkifQ.V_fObnQaZWMj9nRnoT06jITZ9-oRnUonxBxFvbpSE4o")
     console.log(signature);
   } catch (err) {
     console.log(err);
@@ -27,7 +28,7 @@ const decodeToken = async (): Promise<void> => {
 const validateToken = async (): Promise<void> => {
   const secret = 'secret';
   try {
-    const signature = await validate_jwt(secret, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEyMywibmFtZSI6IkFuaXNoIiwiaWQiOjEsImlhdCI6MTcyMTg0MDUyOCwiZXhwIjoxNzIxODQ0MTI4fQ.XaYOZetmKElvDOjcl533YcoSzECBK2Y9Pxp0b")
+    const signature = await validate_jwt(secret, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEyMywibmFtZSI6IkFuaXNoIiwiaWQiOjEsImlhdCI6MTcyMTk3Nzc4MiwiZXhwIjoxNzIxOTgxMzgyLCJhdWQiOiJteS1hdWQiLCJpc3MiOiJzYWxsdWJoYWkifQ.V_fObnQaZWMj9nRnoT06jITZ9-oRnUonxBxFvbpSE4o")
     console.log(signature);
   } catch (err) {
     console.log(err);
