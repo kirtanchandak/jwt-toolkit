@@ -1,4 +1,6 @@
-import { decode_jwt, encode_jwt, validate_jwt } from "./jwt";
+import { encode_jwt } from "./encodeJwt";
+import { decode_jwt } from "./decodeJwt";
+import { validate_jwt } from "./validateJwt";
 
 const generateToken = async (): Promise<void> => {
   const secret = 'secret';

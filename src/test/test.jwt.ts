@@ -1,4 +1,4 @@
-import { encode_jwt } from "../jwt";
+import { encode_jwt } from "../encodeJwt";
 
 describe("JWT functions testing", () => {
     const originalDateNow = Date.now;
